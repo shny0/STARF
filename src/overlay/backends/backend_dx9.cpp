@@ -162,7 +162,6 @@ void StarOverlay::on_present_dx9(IDirect3DDevice9* device)
         if (panel_anim_ > 0.001f) render_panel();
         render_notifications(dt);
         render_hud();
-    render_hud();
 
         ImGui::Render();
 

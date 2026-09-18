@@ -100,7 +100,6 @@ void StarOverlay::on_present_opengl(HDC hdc)
         if (panel_anim_ > 0.001f) render_panel();
         render_notifications(dt);
         render_hud();
-    render_hud();
 
         ImGui::Render();
 
