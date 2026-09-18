@@ -54,9 +54,20 @@ void StarOverlay::render_panel()
         | ImGuiWindowFlags_NoScrollWithMouse;
 
     ImGui::Begin("##star_sidebar", nullptr, wf);
-    ImDrawList* dl = ImGui::GetWindowDrawList();
-    ImVec2      wp = ImGui::GetWindowPos();
 
+    panel_header(fsmall, ftitle, PW);
+    panel_screenshots(fsmall, sw, sh);
+    panel_achievements(fsmall, ftitle, PW, sw, sh);
+    panel_display(fsmall);
+    panel_notes(fsmall);
+    panel_achievement_list(fsmall, ftitle);
+
+    ImGui::End();
+    ImGui::PopStyleVar();
+}
+
+void StarOverlay::panel_header(ImFont* fsmall, ImFont* ftitle, float pw)
+{
     ImGui::PushFont(ftitle);
     ImGui::PushStyleColor(ImGuiCol_Text, v4(P_TXT, 1.f));
     ImGui::Text("STAR");
@@ -74,7 +85,7 @@ void StarOverlay::render_panel()
         char clk[8];
         snprintf(clk, sizeof(clk), "%02d:%02d", (int)st.wHour, (int)st.wMinute);
         float cw = ImGui::CalcTextSize(clk).x;
-        ImGui::SameLine(PW - cw - 14.f);
+        ImGui::SameLine(pw - cw - 14.f);
         ImGui::PushStyleColor(ImGuiCol_Text, style_.vacc(1.f));
         ImGui::Text("%s", clk);
         ImGui::PopStyleColor();
@@ -106,7 +117,10 @@ void StarOverlay::render_panel()
     ImGui::Text("Total playtime: %s", format_playtime(total_playtime_sec()).c_str());
     ImGui::PopStyleColor();
     ImGui::PopFont();
+}
 
+void StarOverlay::panel_screenshots(ImFont* fsmall, float sw, float sh)
+{
     ImGui::Spacing();
     ImGui::Separator();
     ImGui::Spacing();
@@ -301,11 +315,17 @@ void StarOverlay::render_panel()
         }
         ImGui::PopStyleColor(2);
     }
+}
+
+void StarOverlay::panel_achievements(ImFont* fsmall, ImFont* ftitle, float pw, float sw, float sh)
+{
+    ImDrawList* dl = ImGui::GetWindowDrawList();
 
     ImGui::Spacing();
     ImGui::Separator();
     ImGui::Spacing();
 
+    auto& s = Settings::get();
     auto& stats = StarSteamUserStats::get();
     int total = (int)s.achievements.size();
     int done  = 0;
@@ -326,7 +346,7 @@ void StarOverlay::render_panel()
     {
         const char* lbl = "Test notify";
         float bw = ImGui::CalcTextSize(lbl).x + 14.f;
-        ImGui::SameLine(PW - bw - 14.f);
+        ImGui::SameLine(pw - bw - 14.f);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 2.f);
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {6.f, 2.f});
         ImGui::PushStyleColor(ImGuiCol_Button,        v4(P_BG2,    1.f));
@@ -348,7 +368,7 @@ void StarOverlay::render_panel()
     if (total > 0) {
         float pct = (float)done / (float)total;
         ImVec2 cur = ImGui::GetCursorScreenPos();
-        float  bw  = PW - 28.f;
+        float  bw  = pw - 28.f;
         dl->AddRectFilled(cur, {cur.x+bw, cur.y+3.f}, col(P_SEP, 0.6f), 2.f);
         dl->AddRectFilled(cur, {cur.x+bw*pct, cur.y+3.f}, style_.acc(0.9f), 2.f);
         ImGui::Dummy({bw, 5.f});
@@ -396,7 +416,7 @@ void StarOverlay::render_panel()
                 : "This cannot be undone.");
             ImGui::PopStyleColor();
             ImGui::PopFont();
-        ImGui::Spacing();
+            ImGui::Spacing();
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {10.f, 5.f});
             ImGui::PushStyleColor(ImGuiCol_Button,        v4(P_BG2,    1.f));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, v4(0x30,0x30,0x30, 1.f));
@@ -440,6 +460,11 @@ void StarOverlay::render_panel()
         ImGui::PopStyleColor();
         ImGui::PopFont();
     }
+}
+
+void StarOverlay::panel_display(ImFont* fsmall)
+{
+    ImDrawList* dl = ImGui::GetWindowDrawList();
 
     ImGui::Spacing();
     ImGui::Separator();
@@ -472,6 +497,7 @@ void StarOverlay::render_panel()
             { "orange", 0xff, 0xa0, 0x3c },
             { "yellow", 0xff, 0xd4, 0x4d },
         };
+        auto& s = Settings::get();
         for (int i = 0; i < 6; i++) {
             if (i > 0) ImGui::SameLine(0.f, 4.f);
             ImGui::PushID(i);
@@ -546,7 +572,10 @@ void StarOverlay::render_panel()
             }
         }
     }
+}
 
+void StarOverlay::panel_notes(ImFont* fsmall)
+{
     ImGui::Spacing();
 
     // ---- Per-game notes (STAR/notes.txt, travels with the game copy) ----
@@ -579,7 +608,10 @@ void StarOverlay::render_panel()
         if (notes_.autosave_due(GetTickCount()))
             notes_.save();
     }
+}
 
+void StarOverlay::panel_achievement_list(ImFont* fsmall, ImFont* ftitle)
+{
     ImGui::Spacing();
 
     {
@@ -642,6 +674,8 @@ void StarOverlay::render_panel()
             scroll_current_y_ = scroll_target_y_;
         }
 
+    auto& s = Settings::get();
+    auto& stats = StarSteamUserStats::get();
     const float S = style_.scale();
     const float ROW_BASE = 64.f;
     const float ICON_S = 44.f;
@@ -801,8 +835,6 @@ void StarOverlay::render_panel()
     }
     ImGui::EndChild();
     ImGui::PopStyleVar();
-    ImGui::End();
-    ImGui::PopStyleVar();
 }
 
 void StarOverlay::push_achievement(const std::string& name, const std::string& desc,
@@ -816,4 +848,3 @@ void StarOverlay::push_achievement(const std::string& name, const std::string& d
     n.time_remaining = 5.f; n.age = 0.f;
     notifications_.push(std::move(n));
 }
-

@@ -148,6 +148,12 @@ private:
 
     void render_notifications(float dt);
     void render_panel();
+    void panel_header(ImFont* fsmall, ImFont* ftitle, float pw);
+    void panel_screenshots(ImFont* fsmall, float sw, float sh);
+    void panel_achievements(ImFont* fsmall, ImFont* ftitle, float pw, float sw, float sh);
+    void panel_display(ImFont* fsmall);
+    void panel_notes(ImFont* fsmall);
+    void panel_achievement_list(ImFont* fsmall, ImFont* ftitle);
     void render_hud();
     // Software cursor while open: guarantees a visible panel cursor even if
     // the game buried the OS cursor. Off when closed (game draws its own).
