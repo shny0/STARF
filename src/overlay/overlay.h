@@ -1,5 +1,6 @@
 #pragma once
 #include "core/star_common.h"
+#include "overlay/core/notes_store.h"
 #include <atomic>
 #include <thread>
 #include <dxgi1_4.h>
@@ -230,12 +231,7 @@ private:
     int   session_unlocks_ = 0;
     std::string viewer_file_;
     bool  viewer_pending_ = false;
-    std::string notes_text_;
-    bool  notes_loaded_ = false;
-    bool  notes_dirty_ = false;
-    DWORD notes_last_edit_ = 0;
-    void load_notes();
-    void save_notes();
+    NotesStore notes_;
 
     ID3D11Device*           device_        = nullptr;
     ID3D11DeviceContext*    context_       = nullptr;
