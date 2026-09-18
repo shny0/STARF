@@ -96,6 +96,7 @@ set(STAR_SOURCES
     src/overlay/ui/overlay_icons.cpp
     src/overlay/ui/overlay_panel.cpp
     src/overlay/capture/overlay_screenshot.cpp
+    src/overlay/capture/screenshot_service.cpp
     src/overlay/capture/overlay_capture.cpp
     src/overlay/backends/backend_dx9.cpp
     src/overlay/backends/backend_dx11.cpp

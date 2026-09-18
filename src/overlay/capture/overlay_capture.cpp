@@ -27,7 +27,7 @@
 
 void StarOverlay::maybe_capture_dx11(IDXGISwapChain* chain)
 {
-    if (!screenshot_requested_.exchange(false)) return;
+    if (!screenshots_.consume()) return;
     if (!enabled_ || !device_ || !context_) return;
     ID3D11Texture2D* bb = nullptr;
     if (FAILED(chain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&bb)) || !bb) return;
@@ -82,8 +82,8 @@ void StarOverlay::maybe_capture_dx11(IDXGISwapChain* chain)
             }
         }
         context_->Unmap(staging, 0);
-        path = next_screenshot_path();
-        if (!path.empty() && save_rgba_png(path, rgba.data(), (int)desc.Width, (int)desc.Height))
+        path = ScreenshotService::next_path();
+        if (!path.empty() && ScreenshotService::save_rgba_png(path, rgba.data(), (int)desc.Width, (int)desc.Height))
             notify_screenshot(path);
     }
     staging->Release();
@@ -93,7 +93,7 @@ void StarOverlay::maybe_capture_dx11(IDXGISwapChain* chain)
 
 void StarOverlay::maybe_capture_dx9(IDirect3DDevice9* device)
 {
-    if (!screenshot_requested_.exchange(false)) return;
+    if (!screenshots_.consume()) return;
     if (!enabled_ || !device) return;
     IDirect3DSurface9* rt = nullptr;
     if (FAILED(device->GetRenderTarget(0, &rt)) || !rt) return;
@@ -128,8 +128,8 @@ void StarOverlay::maybe_capture_dx9(IDirect3DDevice9* device)
             }
         }
         sys->UnlockRect();
-        std::string path = next_screenshot_path();
-        if (!path.empty() && save_rgba_png(path, rgba.data(), (int)desc.Width, (int)desc.Height))
+        std::string path = ScreenshotService::next_path();
+        if (!path.empty() && ScreenshotService::save_rgba_png(path, rgba.data(), (int)desc.Width, (int)desc.Height))
             notify_screenshot(path);
     }
     sys->Release();
@@ -137,7 +137,7 @@ void StarOverlay::maybe_capture_dx9(IDirect3DDevice9* device)
 
 void StarOverlay::maybe_capture_opengl()
 {
-    if (!screenshot_requested_.exchange(false)) return;
+    if (!screenshots_.consume()) return;
     if (!enabled_) return;
     HMODULE opengl_dll = GetModuleHandleA("opengl32.dll");
     if (!opengl_dll) return;
@@ -159,8 +159,8 @@ void StarOverlay::maybe_capture_opengl()
     size_t row = (size_t)vp[2] * 4;
     for (int y = 0; y < vp[3]; y++)
         memcpy(rgba.data() + (size_t)y * row, px.data() + (size_t)(vp[3] - 1 - y) * row, row);
-    std::string path = next_screenshot_path();
-    if (!path.empty() && save_rgba_png(path, rgba.data(), vp[2], vp[3]))
+    std::string path = ScreenshotService::next_path();
+    if (!path.empty() && ScreenshotService::save_rgba_png(path, rgba.data(), vp[2], vp[3]))
         notify_screenshot(path);
 }
 
@@ -278,13 +278,13 @@ void StarOverlay::capture_desktop_duplication()
                 }
             }
             ctx->Unmap(staging, 0);
-            std::string path = next_screenshot_path();
+            std::string path = ScreenshotService::next_path();
             // All-black desktop frame = exclusive/independent-flip fullscreen
             // bypassing DWM; tell the user how to fix it instead of silence.
             double mean = (double)bright / ((double)desc.Width * desc.Height * 3.0);
             bool dark = mean < 4.0;
             if (dark) STAR_LOG("Screenshot looks black (exclusive fullscreen?)");
-            if (!path.empty() && save_rgba_png(path, rgba.data(), (int)desc.Width, (int)desc.Height))
+            if (!path.empty() && ScreenshotService::save_rgba_png(path, rgba.data(), (int)desc.Width, (int)desc.Height))
                 notify_screenshot(path, dark);
         }
         staging->Release();

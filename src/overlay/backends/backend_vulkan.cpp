@@ -537,7 +537,7 @@ void StarOverlay::init_imgui_vulkan(void* queue, const void* pPresentInfo)
 
 void StarOverlay::maybe_capture_vulkan(void* queue, const void* pPresentInfo)
 {
-    if (!screenshot_requested_.exchange(false)) return;
+    if (!screenshots_.consume()) return;
     if (!enabled_ || !imgui_initialized_ || active_api_ != GraphicsAPI::Vulkan) return;
     if (!vk_device_ || !vk_physical_device_) return;
     struct FakePresentInfo {
@@ -666,8 +666,8 @@ void StarOverlay::maybe_capture_vulkan(void* queue, const void* pPresentInfo)
                     memcpy(rgba.data(), mapped, rgba.size());
                 }
                 vkUnmapMemory(dev, mem);
-                shot_path = next_screenshot_path();
-                if (!shot_path.empty() && save_rgba_png(shot_path, rgba.data(), (int)w, (int)h))
+                shot_path = ScreenshotService::next_path();
+                if (!shot_path.empty() && ScreenshotService::save_rgba_png(shot_path, rgba.data(), (int)w, (int)h))
                     shot_ok = true;
             }
             vkDestroyFence(dev, fence, nullptr);

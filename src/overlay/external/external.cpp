@@ -470,7 +470,7 @@ void StarOverlay::external_thread_proc()
 
         // Screenshots have no present hook to ride on here: consume directly.
         // Duplication never touches game state, so this is always safe.
-        if (screenshot_requested_.exchange(false))
+        if (screenshots_.consume())
             capture_desktop_duplication();
 
         if ((frame++ % 30) == 0) external_track_game_window();

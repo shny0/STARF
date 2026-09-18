@@ -142,7 +142,7 @@ void StarOverlay::render_panel()
     {
         ImGui::PushFont(fsmall);
         ImGui::PushStyleColor(ImGuiCol_Text, v4(P_DIM, 1.f));
-        ImGui::TextWrapped("Shots: %s", screenshots_dir().c_str());
+        ImGui::TextWrapped("Shots: %s", ScreenshotService::dir().c_str());
         ImGui::PopStyleColor();
         ImGui::PopFont();
     }
@@ -156,7 +156,7 @@ void StarOverlay::render_panel()
         if (shots_refresh == 0 || nowt - shots_refresh > 5000) {
             shots_refresh = nowt;
             shots.clear();
-            std::string pattern = screenshots_dir() + "\\*.png";
+            std::string pattern = ScreenshotService::dir() + "\\*.png";
             WIN32_FIND_DATAA fd{};
             HANDLE h = FindFirstFileA(pattern.c_str(), &fd);
             if (h != INVALID_HANDLE_VALUE) {
@@ -164,7 +164,7 @@ void StarOverlay::render_panel()
                     if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
                         ShotEntry e;
                         e.name = fd.cFileName;
-                        e.path = screenshots_dir() + "\\" + e.name;
+                        e.path = ScreenshotService::dir() + "\\" + e.name;
                         e.wt = fd.ftLastWriteTime;
                         shots.push_back(e);
                     }
@@ -224,7 +224,7 @@ void StarOverlay::render_panel()
             ImGui::PushStyleColor(ImGuiCol_ButtonActive,  v4(0x3a,0x3a,0x3a, 1.f));
             ImGui::PushStyleColor(ImGuiCol_Text,          v4(P_MUT,    1.f));
             if (ImGui::Button("Open folder")) {
-                ShellExecuteA(nullptr, "open", screenshots_dir().c_str(),
+                ShellExecuteA(nullptr, "open", ScreenshotService::dir().c_str(),
                     nullptr, nullptr, SW_SHOWNORMAL);
             }
             ImGui::PopStyleColor(4);

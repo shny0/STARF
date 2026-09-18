@@ -69,7 +69,7 @@ void StarOverlay::hook_dx12_ecl()
 #ifdef _WIN64
 void StarOverlay::maybe_capture_dx12(IDXGISwapChain* chain)
 {
-    if (!screenshot_requested_.exchange(false)) return;
+    if (!screenshots_.consume()) return;
     if (!enabled_) return;
     // Render is off (hostile titles): read the composed desktop instead of
     // touching the game's buffers at all.
@@ -176,8 +176,8 @@ void StarOverlay::maybe_capture_dx12(IDXGISwapChain* chain)
         D3D12_RANGE empty{};
         empty.Begin = 0; empty.End = 0;
         readback->Unmap(0, &empty);
-        std::string path = next_screenshot_path();
-        if (!path.empty() && save_rgba_png(path, rgba.data(), (int)w, (int)h))
+        std::string path = ScreenshotService::next_path();
+        if (!path.empty() && ScreenshotService::save_rgba_png(path, rgba.data(), (int)w, (int)h))
             notify_screenshot(path);
     }
     list->Release();

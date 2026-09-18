@@ -2,6 +2,7 @@
 #include "core/star_common.h"
 #include "overlay/core/notes_store.h"
 #include "overlay/ui/notification_queue.h"
+#include "overlay/capture/screenshot_service.h"
 #include <atomic>
 #include <thread>
 #include <dxgi1_4.h>
@@ -150,9 +151,6 @@ private:
     // Software cursor while open: guarantees a visible panel cursor even if
     // the game buried the OS cursor. Off when closed (game draws its own).
     void apply_cursor_mode() { ImGui::GetIO().MouseDrawCursor = open_; }
-    bool save_rgba_png(const std::string& path, const uint8_t* rgba, int w, int h);
-    std::string next_screenshot_path();
-    static std::string screenshots_dir();
     void notify_screenshot(const std::string& file, bool dark = false);
     void maybe_capture_dx11(IDXGISwapChain* chain);
     void maybe_capture_dx9(struct IDirect3DDevice9* device);
@@ -184,7 +182,7 @@ private:
     bool  vulkan_hooked_     = false;
     bool  hotkey_prev_down_  = false;
     bool  f12_prev_down_     = false;
-    std::atomic<bool> screenshot_requested_{ false };
+    ScreenshotService screenshots_;
     uint8_t prev_keys_[256]  = {};
     bool  prev_keys_valid_   = false;
     DWORD last_wmchar_tick_  = 0;
