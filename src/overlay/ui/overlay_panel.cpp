@@ -30,13 +30,13 @@ void StarOverlay::render_panel()
     ImGuiIO& io   = ImGui::GetIO();
     float sw      = io.DisplaySize.x;
     float sh      = io.DisplaySize.y;
-    ImFont* fsmall = (ImFont*)font_small_;
-    ImFont* ftitle = (ImFont*)font_title_;
+    ImFont* fsmall = (ImFont*)style_.small_font();
+    ImFont* ftitle = (ImFont*)style_.title_font();
 
     float slide   = easeOut(panel_anim_);
     float alpha   = panel_anim_;
 
-    const float PW = 420.f * ui_scale_;
+    const float PW = 420.f * style_.scale();
 
     ImGui::GetBackgroundDrawList()->AddRectFilled(
         {0,0}, {sw,sh}, col(0,0,0, 0.35f * alpha));
@@ -75,7 +75,7 @@ void StarOverlay::render_panel()
         snprintf(clk, sizeof(clk), "%02d:%02d", (int)st.wHour, (int)st.wMinute);
         float cw = ImGui::CalcTextSize(clk).x;
         ImGui::SameLine(PW - cw - 14.f);
-        ImGui::PushStyleColor(ImGuiCol_Text, vacc(1.f));
+        ImGui::PushStyleColor(ImGuiCol_Text, style_.vacc(1.f));
         ImGui::Text("%s", clk);
         ImGui::PopStyleColor();
     }
@@ -125,7 +125,7 @@ void StarOverlay::render_panel()
         ImGui::PushStyleColor(ImGuiCol_Button,        v4(P_BG2,    1.f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, v4(0x30,0x30,0x30, 1.f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive,  v4(0x3a,0x3a,0x3a, 1.f));
-        ImGui::PushStyleColor(ImGuiCol_Text,          vacc(1.f));
+        ImGui::PushStyleColor(ImGuiCol_Text,          style_.vacc(1.f));
         if (ImGui::Button(lblShot)) request_screenshot();
         ImGui::PopStyleColor(4);
         ImGui::PopStyleVar();
@@ -354,7 +354,7 @@ void StarOverlay::render_panel()
         ImVec2 cur = ImGui::GetCursorScreenPos();
         float  bw  = PW - 28.f;
         dl->AddRectFilled(cur, {cur.x+bw, cur.y+3.f}, col(P_SEP, 0.6f), 2.f);
-        dl->AddRectFilled(cur, {cur.x+bw*pct, cur.y+3.f}, acc(0.9f), 2.f);
+        dl->AddRectFilled(cur, {cur.x+bw*pct, cur.y+3.f}, style_.acc(0.9f), 2.f);
         ImGui::Dummy({bw, 5.f});
 
         // Bulk actions (confirmation modal guards misclicks).
@@ -363,7 +363,7 @@ void StarOverlay::render_panel()
         ImGui::PushStyleColor(ImGuiCol_Button,        v4(P_BG2,       1.f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, v4(0x1a,0x2c,0x44, 1.f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive,  v4(0x1e,0x36,0x54, 1.f));
-        ImGui::PushStyleColor(ImGuiCol_Text,          vacc(1.f));
+        ImGui::PushStyleColor(ImGuiCol_Text,          style_.vacc(1.f));
         if (ImGui::Button("Unlock all", {bw2, 28.f})) {
             bulk_is_unlock_ = true;
             bulk_confirm_pending_ = true;
@@ -409,10 +409,10 @@ void StarOverlay::render_panel()
             if (ImGui::Button("Cancel")) ImGui::CloseCurrentPopup();
             ImGui::PopStyleColor(4);
             ImGui::SameLine(0.f, 8.f);
-            ImGui::PushStyleColor(ImGuiCol_Button,        bulk_is_unlock_ ? vacc(0.22f) : v4(0x38,0x1a,0x1a, 1.f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, bulk_is_unlock_ ? vacc(0.3f)  : v4(0x44,0x20,0x20, 1.f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive,  vacc(0.35f));
-            ImGui::PushStyleColor(ImGuiCol_Text,          bulk_is_unlock_ ? vacc(1.f) : v4(P_TXT, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_Button,        bulk_is_unlock_ ? style_.vacc(0.22f) : v4(0x38,0x1a,0x1a, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, bulk_is_unlock_ ? style_.vacc(0.3f)  : v4(0x44,0x20,0x20, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive,  style_.vacc(0.35f));
+            ImGui::PushStyleColor(ImGuiCol_Text,          bulk_is_unlock_ ? style_.vacc(1.f) : v4(P_TXT, 1.f));
             if (ImGui::Button("Confirm")) {
                 if (bulk_is_unlock_) {
                     stats.set_bulk_silent(true);
@@ -482,16 +482,16 @@ void StarOverlay::render_panel()
             ImVec4 c = { swatches[i].r / 255.f, swatches[i].g / 255.f, swatches[i].b / 255.f, 1.f };
             if (ImGui::ColorButton("##acc", c, ImGuiColorEditFlags_NoTooltip, { 30.f, 30.f })) {
                 s.overlay_accent = swatches[i].name;
-                resolve_accent();
+                style_.resolve_accent();
                 ImGuiStyle& st = ImGui::GetStyle();
-                st.Colors[ImGuiCol_ScrollbarGrabActive] = vacc(1.f);
-                st.Colors[ImGuiCol_CheckMark] = vacc(1.f);
-                st.Colors[ImGuiCol_SliderGrab] = vacc(1.f);
+                st.Colors[ImGuiCol_ScrollbarGrabActive] = style_.vacc(1.f);
+                st.Colors[ImGuiCol_CheckMark] = style_.vacc(1.f);
+                st.Colors[ImGuiCol_SliderGrab] = style_.vacc(1.f);
                 save_overlay_key("accent", s.overlay_accent);
                 STAR_LOG("Overlay accent -> %s", s.overlay_accent.c_str());
             }
             if (s.overlay_accent == swatches[i].name)
-                dl->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), acc(1.f), 4.f, 0, 2.f);
+                dl->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), style_.acc(1.f), 4.f, 0, 2.f);
             ImGui::PopID();
         }
 
@@ -505,10 +505,10 @@ void StarOverlay::render_panel()
             for (int i = 0; i < 3; i++) {
                 if (i > 0) ImGui::SameLine(0.f, 4.f);
                 bool active = *hud_val[i];
-                ImGui::PushStyleColor(ImGuiCol_Button,        active ? vacc(0.22f) : v4(P_BG2, 1.f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, active ? vacc(0.3f)  : v4(0x30,0x30,0x30, 1.f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonActive,  vacc(0.35f));
-                ImGui::PushStyleColor(ImGuiCol_Text,          active ? vacc(1.f) : v4(P_MUT, 1.f));
+                ImGui::PushStyleColor(ImGuiCol_Button,        active ? style_.vacc(0.22f) : v4(P_BG2, 1.f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, active ? style_.vacc(0.3f)  : v4(0x30,0x30,0x30, 1.f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive,  style_.vacc(0.35f));
+                ImGui::PushStyleColor(ImGuiCol_Text,          active ? style_.vacc(1.f) : v4(P_MUT, 1.f));
                 if (ImGui::Button(hud_lbl[i], {hud_w, 30.f})) {
                     *hud_val[i] = !*hud_val[i];
                     save_overlay_key(hud_key[i], *hud_val[i] ? "true" : "false");
@@ -533,10 +533,10 @@ void StarOverlay::render_panel()
             for (int i = 0; i < 4; i++) {
                 if (i > 0) ImGui::SameLine(0.f, 4.f);
                 bool active = (s.overlay_notify_pos == corners[i].value);
-                ImGui::PushStyleColor(ImGuiCol_Button,        active ? vacc(0.22f) : v4(P_BG2, 1.f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, active ? vacc(0.3f)  : v4(0x30,0x30,0x30, 1.f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonActive,  vacc(0.35f));
-                ImGui::PushStyleColor(ImGuiCol_Text,          active ? vacc(1.f) : v4(P_MUT, 1.f));
+                ImGui::PushStyleColor(ImGuiCol_Button,        active ? style_.vacc(0.22f) : v4(P_BG2, 1.f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, active ? style_.vacc(0.3f)  : v4(0x30,0x30,0x30, 1.f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive,  style_.vacc(0.35f));
+                ImGui::PushStyleColor(ImGuiCol_Text,          active ? style_.vacc(1.f) : v4(P_MUT, 1.f));
                 ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {4.f, 2.f});
                 if (ImGui::Button(corners[i].label)) {
                     s.overlay_notify_pos = corners[i].value;
@@ -546,7 +546,7 @@ void StarOverlay::render_panel()
                 ImGui::PopStyleVar();
                 ImGui::PopStyleColor(4);
                 if (active)
-                    dl->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), acc(0.7f), 3.f, 0, 1.5f);
+                    dl->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), style_.acc(0.7f), 3.f, 0, 1.5f);
             }
         }
     }
@@ -560,7 +560,7 @@ void StarOverlay::render_panel()
         ImGui::Text("NOTES");
         ImGui::SameLine(0.f, 8.f);
         ImGui::PopStyleColor();
-        ImGui::PushStyleColor(ImGuiCol_Text, notes_.dirty() ? vacc(1.f) : v4(P_DIM, 1.f));
+        ImGui::PushStyleColor(ImGuiCol_Text, notes_.dirty() ? style_.vacc(1.f) : v4(P_DIM, 1.f));
         ImGui::Text("%s", notes_.dirty() ? "(unsaved)" : "(auto-saved)");
         ImGui::PopStyleColor();
         ImGui::PopFont();
@@ -600,10 +600,10 @@ void StarOverlay::render_panel()
         for (int i = 0; i < 3; i++) {
             if (i > 0) ImGui::SameLine(0.f, 4.f);
             bool active = filter_mode_ == i;
-            ImGui::PushStyleColor(ImGuiCol_Button,        active ? vacc(0.22f) : v4(P_BG2, 1.f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, active ? vacc(0.3f)  : v4(0x30,0x30,0x30, 1.f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive,  vacc(0.35f));
-            ImGui::PushStyleColor(ImGuiCol_Text,          active ? vacc(1.f) : v4(P_MUT, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_Button,        active ? style_.vacc(0.22f) : v4(P_BG2, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, active ? style_.vacc(0.3f)  : v4(0x30,0x30,0x30, 1.f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive,  style_.vacc(0.35f));
+            ImGui::PushStyleColor(ImGuiCol_Text,          active ? style_.vacc(1.f) : v4(P_MUT, 1.f));
             if (ImGui::Button(tabs[i], {tab_w, 30.f})) filter_mode_ = i;
             ImGui::PopStyleColor(4);
         }
@@ -646,7 +646,7 @@ void StarOverlay::render_panel()
             scroll_current_y_ = scroll_target_y_;
         }
 
-    const float S = ui_scale_;
+    const float S = style_.scale();
     const float ROW_BASE = 64.f;
     const float ICON_S = 44.f;
     const float ICON_X = 12.f;
@@ -723,7 +723,7 @@ void StarOverlay::render_panel()
         }
         if (got)
             dl->AddRect({ix2-1.5f,iy2-1.5f},{ix2+ICON_S+1.5f,iy2+ICON_S+1.5f},
-                acc(0.6f), 4.f, 0, 1.5f);
+                style_.acc(0.6f), 4.f, 0, 1.5f);
 
         float dot_x = ix2 + ICON_S - 6.f, dot_y = iy2;
         dl->AddCircleFilled({dot_x, dot_y}, 5.f,
@@ -776,7 +776,7 @@ void StarOverlay::render_panel()
             ImGui::PushStyleColor(ImGuiCol_Button,        v4(P_BG2,       1.f));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, v4(0x1a,0x2c,0x44, 1.f));
             ImGui::PushStyleColor(ImGuiCol_ButtonActive,  v4(0x1e,0x36,0x54, 1.f));
-            ImGui::PushStyleColor(ImGuiCol_Text,          vacc(1.f));
+            ImGui::PushStyleColor(ImGuiCol_Text,          style_.vacc(1.f));
             if (ImGui::Button(("Unlock##" + def.name).c_str(), {72.f * S, 26.f * S}))
                 stats.SetAchievement(def.name.c_str());
             ImGui::PopStyleColor(4);

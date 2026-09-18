@@ -94,7 +94,7 @@ void StarOverlay::init_imgui(IDXGISwapChain* chain)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    setup_imgui_style_and_fonts();
+    style_.setup();
 
     ImGui_ImplWin32_Init(hwnd_);
     if (!ImGui_ImplDX11_Init(device_, context_)) {

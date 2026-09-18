@@ -264,7 +264,7 @@ void StarOverlay::init_imgui_dx12(IDXGISwapChain* chain, void* device, void* com
     if (ImGui_ImplDX12_Init(dev, sd.BufferCount, sd.BufferDesc.Format, srv_heap,
                             srv_heap->GetCPUDescriptorHandleForHeapStart(),
                             srv_heap->GetGPUDescriptorHandleForHeapStart())) {
-        setup_imgui_style_and_fonts();
+        style_.setup();
         dev->AddRef();
         queue->AddRef();
         dx12_device_ = dev;

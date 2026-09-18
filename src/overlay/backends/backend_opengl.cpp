@@ -75,7 +75,7 @@ void StarOverlay::on_present_opengl(HDC hdc)
         ImGui_ImplWin32_Init(hwnd_);
 
         if (ImGui_ImplOpenGL3_Init()) {
-            setup_imgui_style_and_fonts();
+            style_.setup();
             imgui_initialized_ = true;
             active_api_ = GraphicsAPI::OpenGL;
             STAR_LOG("ImGui ready (OpenGL) hwnd=%p", hwnd_);

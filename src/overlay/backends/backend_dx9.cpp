@@ -137,7 +137,7 @@ void StarOverlay::on_present_dx9(IDirect3DDevice9* device)
         // hook_window already done via hook_window_for
 
         if (ImGui_ImplDX9_Init(device)) {
-            setup_imgui_style_and_fonts();
+            style_.setup();
             imgui_initialized_ = true;
             active_api_ = GraphicsAPI::DX9;
             STAR_LOG("ImGui ready (DX9) hwnd=%p", hwnd_);

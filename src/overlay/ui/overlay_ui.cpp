@@ -36,20 +36,20 @@ void StarOverlay::render_hud()
         if (!hud_logged) {
             hud_logged = true;
             STAR_LOG("HUD live (fps=%d playtime=%d scale=%.2f)",
-                (int)show_fps, (int)show_time, ui_scale_);
+                (int)show_fps, (int)show_time, style_.scale());
         }
     }
 
     ImDrawList* dl = ImGui::GetForegroundDrawList();
-    ImFont* f = (ImFont*)font_small_;
+    ImFont* f = (ImFont*)style_.small_font();
     if (!f) f = ImGui::GetFont();
 
-    float pad = 10.f * ui_scale_;
+    float pad = 10.f * style_.scale();
     float x = pad + 4.f;
     float y = pad + 4.f;
-    const float txt = 13.f * ui_scale_;
-    const float pill_pad = 7.f * ui_scale_;
-    const float pill_gap = 6.f * ui_scale_;
+    const float txt = 13.f * style_.scale();
+    const float pill_pad = 7.f * style_.scale();
+    const float pill_gap = 6.f * style_.scale();
 
     auto pill = [&](const char* text) {
         ImVec2 sz = f->CalcTextSizeA(txt, FLT_MAX, 0.f, text);
@@ -90,10 +90,10 @@ void StarOverlay::render_notifications(float dt)
 
     ImDrawList* dl = ImGui::GetForegroundDrawList();
     ImGuiIO&    io = ImGui::GetIO();
-    ImFont* fsmall = (ImFont*)font_small_;
-    ImFont* ftitle = (ImFont*)font_title_;
+    ImFont* fsmall = (ImFont*)style_.small_font();
+    ImFont* ftitle = (ImFont*)style_.title_font();
 
-    const float S = ui_scale_;
+    const float S = style_.scale();
     const float W   = 340.f * S;
     const float BASE_H = 82.f * S;
     const float PAD = 14.f;
@@ -128,7 +128,7 @@ void StarOverlay::render_notifications(float dt)
         // Summary toasts go gold instead of accent.
         auto tacc = [&](float m) -> ImU32 {
             if (n.summary) return IM_COL32(255, 205, 70, (int)(a * m * 255.f + .5f));
-            return acc(a * m);
+            return style_.acc(a * m);
         };
 
         float x = nleft ? edge_x - (1.f - slide) * (W + PAD)

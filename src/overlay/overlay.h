@@ -3,6 +3,7 @@
 #include "overlay/core/notes_store.h"
 #include "overlay/ui/notification_queue.h"
 #include "overlay/capture/screenshot_service.h"
+#include "overlay/ui/overlay_style.h"
 #include <atomic>
 #include <thread>
 #include <dxgi1_4.h>
@@ -160,10 +161,6 @@ private:
 #endif
     void capture_desktop_duplication();
     void maybe_capture_vulkan(void* queue, const void* pPresentInfo);
-    void setup_imgui_style_and_fonts();
-    void resolve_accent();
-    ImU32 acc(float a) const;
-    ImVec4 vacc(float a) const;
     void hook_window();
     void hook_window_for(HWND h);
     void toggle_overlay();
@@ -186,8 +183,7 @@ private:
     uint8_t prev_keys_[256]  = {};
     bool  prev_keys_valid_   = false;
     DWORD last_wmchar_tick_  = 0;
-    float ui_scale_          = 1.0f;
-    uint8_t acc_r_ = 0x4f, acc_g_ = 0xa3, acc_b_ = 0xff;
+    OverlayStyle style_;
     uint64_t base_playtime_sec_ = 0;
     DWORD last_playtime_save_ = 0;
     uint64_t total_playtime_sec() const;
@@ -251,9 +247,6 @@ private:
     static void STDMETHODCALLTYPE hooked_ExecuteCommandLists(void* queue, UINT count, void* const* lists);
     static void* g_dx12_captured_queue_;
 #endif
-
-    void* font_small_ = nullptr;
-    void* font_title_ = nullptr;
 
     std::mutex                        render_mutex_;
     NotificationQueue notifications_;

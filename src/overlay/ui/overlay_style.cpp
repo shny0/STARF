@@ -1,62 +1,32 @@
-#include "overlay/overlay_internal.h"
+#include "overlay/ui/overlay_style.h"
+#include "overlay/core/overlay_util.h"
 #include "core/settings.h"
-#include "core/storage.h"
-#include "core/callbacks.h"
-#include "steam/steam_user_stats.h"
-#include "steam/steam_utils.h"
-#include "imgui.h"
-#include "imgui_impl_win32.h"
-#include "imgui_impl_dx9.h"
-#include "imgui_impl_dx11.h"
-#include "imgui_impl_dx12.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_impl_vulkan.h"
-#include <MinHook.h>
-#include <d3d9.h>
-#include <d3d12.h>
-#include <cmath>
-#include <wincodec.h>
-#pragma comment(lib, "WindowsCodecs.lib")
-#include <shlobj.h>
-#include <shellapi.h>
-#pragma comment(lib, "shell32.lib")
-#include <vulkan/vulkan.h>
-#include <cctype>
-#include <ctime>
-#include <algorithm>
+#include "core/star_common.h"
+#include <windows.h>
+#include <string>
 
-void StarOverlay::resolve_accent()
+void OverlayStyle::resolve_accent()
 {
     const std::string& a = Settings::get().overlay_accent;
-    if (a == "red")         { acc_r_ = 0xff; acc_g_ = 0x5a; acc_b_ = 0x5a; }
-    else if (a == "green")  { acc_r_ = 0x4c; acc_g_ = 0xb8; acc_b_ = 0x4c; }
-    else if (a == "purple") { acc_r_ = 0xb0; acc_g_ = 0x7f; acc_b_ = 0xff; }
-    else if (a == "orange") { acc_r_ = 0xff; acc_g_ = 0xa0; acc_b_ = 0x3c; }
-    else if (a == "yellow") { acc_r_ = 0xff; acc_g_ = 0xd4; acc_b_ = 0x4d; }
-    else                    { acc_r_ = 0x4f; acc_g_ = 0xa3; acc_b_ = 0xff; } // blue
+    if (a == "red")         { r_ = 0xff; g_ = 0x5a; b_ = 0x5a; }
+    else if (a == "green")  { r_ = 0x4c; g_ = 0xb8; b_ = 0x4c; }
+    else if (a == "purple") { r_ = 0xb0; g_ = 0x7f; b_ = 0xff; }
+    else if (a == "orange") { r_ = 0xff; g_ = 0xa0; b_ = 0x3c; }
+    else if (a == "yellow") { r_ = 0xff; g_ = 0xd4; b_ = 0x4d; }
+    else                    { r_ = 0x4f; g_ = 0xa3; b_ = 0xff; } // blue
 }
 
-ImU32 StarOverlay::acc(float a) const
-{
-    return IM_COL32(acc_r_, acc_g_, acc_b_, (int)(a * 255.f + .5f));
-}
-
-ImVec4 StarOverlay::vacc(float a) const
-{
-    return { acc_r_ / 255.f, acc_g_ / 255.f, acc_b_ / 255.f, a };
-}
-
-void StarOverlay::setup_imgui_style_and_fonts()
+void OverlayStyle::setup()
 {
     resolve_accent();
-    ui_scale_ = Settings::get().overlay_scale;
-    if (ui_scale_ < 0.75f) ui_scale_ = 0.75f;
-    if (ui_scale_ > 2.0f) ui_scale_ = 2.0f;
+    scale_ = Settings::get().overlay_scale;
+    if (scale_ < 0.75f) scale_ = 0.75f;
+    if (scale_ > 2.0f) scale_ = 2.0f;
 
     ImGuiIO& io = ImGui::GetIO();
     io.IniFilename = nullptr;
     io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
-    io.FontGlobalScale = ui_scale_;
+    io.FontGlobalScale = scale_;
 
     char windir[MAX_PATH]{}; GetWindowsDirectoryA(windir, MAX_PATH);
     std::string fd = std::string(windir) + "\\Fonts\\";
@@ -97,14 +67,14 @@ void StarOverlay::setup_imgui_style_and_fonts()
         return nullptr;
     };
 
-    font_small_ = tryFont(14.f);
-    font_title_ = tryFont(19.f);
+    small_ = tryFont(14.f);
+    title_ = tryFont(19.f);
     if (ImFont* fb = tryFont(16.f)) io.FontDefault = fb;
     else io.Fonts->AddFontDefault();
 
     ImGui::StyleColorsDark();
     ImGuiStyle& s = ImGui::GetStyle();
-    s.ScaleAllSizes(ui_scale_);
+    s.ScaleAllSizes(scale_);
     s.WindowRounding   = 0.f;
     s.ChildRounding    = 4.f;
     s.FrameRounding    = 4.f;
@@ -142,4 +112,3 @@ void StarOverlay::setup_imgui_style_and_fonts()
     C[ImGuiCol_CheckMark]          = vacc(1.f);
     C[ImGuiCol_SliderGrab]         = vacc(1.f);
 }
-

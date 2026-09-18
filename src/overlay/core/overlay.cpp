@@ -37,7 +37,6 @@ void StarOverlay::init()
 {
     g_overlay = this;
     enabled_  = Settings::get().overlay_enabled;
-    ui_scale_ = Settings::get().overlay_scale;
     focus_last_tick_ = GetTickCount();
     last_playtime_save_ = GetTickCount();
     Storage::get().load_playtime(base_playtime_sec_);

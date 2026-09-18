@@ -500,7 +500,7 @@ void StarOverlay::init_imgui_vulkan(void* queue, const void* pPresentInfo)
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
     if (ImGui_ImplVulkan_Init(&init_info)) {
-        setup_imgui_style_and_fonts();
+        style_.setup();
         imgui_initialized_ = true;
         active_api_ = GraphicsAPI::Vulkan;
 

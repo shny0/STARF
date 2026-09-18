@@ -433,7 +433,7 @@ void StarOverlay::external_thread_proc()
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    setup_imgui_style_and_fonts();
+    style_.setup();
     ImGui_ImplWin32_Init(ext_hwnd_);
     if (!ImGui_ImplDX11_Init(device_, context_)) {
         STAR_LOG("External overlay: ImGui DX11 init failed");
