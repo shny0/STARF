@@ -815,11 +815,10 @@ void StarOverlay::push_achievement(const std::string& name, const std::string& d
                                    const std::string& header, bool summary)
 {
     if (!enabled_) return;
-    std::lock_guard<std::mutex> lock(notif_mutex_);
     AchievementNotification n;
     n.header = header; n.summary = summary; n.title = name; n.description = desc;
     n.icon_rgba = rgba; n.icon_width = iw; n.icon_height = ih;
     n.time_remaining = 5.f; n.age = 0.f;
-    notifications_.push_back(std::move(n));
+    notifications_.push(std::move(n));
 }
 

@@ -477,9 +477,7 @@ void StarOverlay::external_thread_proc()
 
         bool want = fg_ok_ && open_;
         if (!want && fg_ok_) {
-            std::unique_lock<std::mutex> nlock(notif_mutex_, std::try_to_lock);
-            if (nlock.owns_lock()) want = !notifications_.empty();
-            else want = true;
+            want = notifications_.has_pending();
             if (!want)
                 want = Settings::get().overlay_show_fps || Settings::get().overlay_show_playtime;
         }

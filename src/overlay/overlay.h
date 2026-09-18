@@ -1,22 +1,11 @@
 #pragma once
 #include "core/star_common.h"
 #include "overlay/core/notes_store.h"
+#include "overlay/ui/notification_queue.h"
 #include <atomic>
 #include <thread>
 #include <dxgi1_4.h>
 #include "imgui.h"
-
-struct AchievementNotification {
-    std::string header = "ACHIEVEMENT UNLOCKED";
-    bool summary = false; // all-complete celebration: gold styling + star
-    std::string title;
-    std::string description;
-    std::vector<uint8_t> icon_rgba;
-    int   icon_width  = 0;
-    int   icon_height = 0;
-    float time_remaining = 5.0f;
-    float age = 0.0f;
-};
 
 class StarOverlay {
 public:
@@ -269,8 +258,7 @@ private:
     void* font_title_ = nullptr;
 
     std::mutex                        render_mutex_;
-    std::mutex                        notif_mutex_;
-    std::vector<AchievementNotification> notifications_;
+    NotificationQueue notifications_;
     std::unordered_map<std::string, ImTextureID> icon_textures_;
 
     using PresentFn       = HRESULT (STDMETHODCALLTYPE*)(IDXGISwapChain*, UINT, UINT);

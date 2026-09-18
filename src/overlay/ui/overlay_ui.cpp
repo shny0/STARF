@@ -85,16 +85,7 @@ void StarOverlay::render_hud()
 
 void StarOverlay::render_notifications(float dt)
 {
-    std::vector<AchievementNotification> notifs;
-    {
-        std::lock_guard<std::mutex> lock(notif_mutex_);
-        for (auto& n : notifications_) { n.time_remaining -= dt; n.age += dt; }
-        notifications_.erase(
-            std::remove_if(notifications_.begin(), notifications_.end(),
-                [](const AchievementNotification& n){ return n.time_remaining <= 0.f; }),
-            notifications_.end());
-        notifs = notifications_;
-    }
+    std::vector<AchievementNotification> notifs = notifications_.advance_and_snapshot(dt);
     if (notifs.empty()) return;
 
     ImDrawList* dl = ImGui::GetForegroundDrawList();
