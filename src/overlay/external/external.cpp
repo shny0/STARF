@@ -506,9 +506,8 @@ void StarOverlay::external_thread_proc()
         active_api_ = GraphicsAPI::None;
     }
     cleanup_rtv();
-    for (auto& [k, v] : icon_textures_) if (v) ((ID3D11ShaderResourceView*)v)->Release();
-    icon_textures_.clear();
-    gl_icon_textures_.clear();
+    icons_.release_all([](ImTextureID v) { ((ID3D11ShaderResourceView*)v)->Release(); });
+    icons_.clear_gl();
     if (context_) { context_->Release(); context_ = nullptr; }
     if (device_) { device_->Release(); device_ = nullptr; }
     external_free_surfaces();

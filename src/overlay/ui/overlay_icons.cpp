@@ -28,22 +28,19 @@
 ImTextureID StarOverlay::get_or_create_icon(
     const std::string& key, const std::vector<uint8_t>& rgba, int w, int h)
 {
-    auto it = icon_textures_.find(key);
-    if (it != icon_textures_.end()) return it->second;
-
-    ImTextureID tex_id = nullptr;
-    if (!rgba.empty() && w > 0 && h > 0) {
+    return icons_.get_or_create(key, [&]() -> ImTextureID {
+        if (rgba.empty() || w <= 0 || h <= 0) return nullptr;
 #ifdef _WIN64
         if (active_api_ == GraphicsAPI::DX12) {
-            tex_id = upload_icon_dx12(rgba, w, h);
-        } else
+            return upload_icon_dx12(rgba, w, h);
+        }
 #endif
         if (active_api_ == GraphicsAPI::Vulkan) {
-            tex_id = upload_icon_vulkan(rgba, w, h);
+            return upload_icon_vulkan(rgba, w, h);
         } else if (active_api_ == GraphicsAPI::DX9) {
-            tex_id = upload_icon_dx9(rgba, w, h);
+            return upload_icon_dx9(rgba, w, h);
         } else if (active_api_ == GraphicsAPI::OpenGL) {
-            tex_id = upload_icon_opengl(rgba, w, h);
+            return upload_icon_opengl(rgba, w, h);
         } else if (device_) {
             D3D11_TEXTURE2D_DESC td{};
             td.Width = w; td.Height = h; td.MipLevels = 1; td.ArraySize = 1;
@@ -55,12 +52,11 @@ ImTextureID StarOverlay::get_or_create_icon(
                 ID3D11ShaderResourceView* srv = nullptr;
                 device_->CreateShaderResourceView(tex, nullptr, &srv);
                 tex->Release();
-                tex_id = (ImTextureID)(void*)srv;
+                return (ImTextureID)(void*)srv;
             }
         }
-    }
-    icon_textures_[key] = tex_id;
-    return tex_id;
+        return nullptr;
+    });
 }
 
 ImTextureID StarOverlay::upload_icon_dx9(const std::vector<uint8_t>& rgba, int w, int h)
@@ -121,7 +117,7 @@ ImTextureID StarOverlay::upload_icon_opengl(const std::vector<uint8_t>& rgba, in
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, (int)GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgba.data());
-    gl_icon_textures_.push_back(tex);
+    icons_.add_gl_texture(tex);
     return (ImTextureID)(void*)(uintptr_t)tex;
 }
 

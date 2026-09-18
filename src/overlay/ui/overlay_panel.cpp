@@ -186,7 +186,7 @@ void StarOverlay::render_panel()
                     e.iw = (int)uw; e.ih = (int)uh;
                 }
                 if (e.iw <= 0 || e.ih <= 0) continue;
-                if (icon_textures_.find("shot_" + e.name) != icon_textures_.end()) continue;
+                if (icons_.contains("shot_" + e.name)) continue;
                 std::vector<uint8_t> rgba; int iw = 0, ih = 0;
                 if (StarSteamUtils::get().LoadIconFile(e.path, rgba, iw, ih))
                     get_or_create_icon("shot_" + e.name, rgba, iw, ih);
@@ -202,8 +202,7 @@ void StarOverlay::render_panel()
         for (size_t i = 0; i < shots.size(); i++) {
             if (i > 0 && (i % (size_t)per_row) != 0) ImGui::SameLine(0.f, tgap);
             ImGui::PushID((int)i);
-            auto it = icon_textures_.find("shot_" + shots[i].name);
-            ImTextureID tex = (it != icon_textures_.end()) ? it->second : nullptr;
+            ImTextureID tex = icons_.find("shot_" + shots[i].name);
             if (tex && ImGui::ImageButton("##shot", tex, {tsz, tsz})) {
                 viewer_file_ = shots[i].path;
                 viewer_pending_ = true;
@@ -248,8 +247,8 @@ void StarOverlay::render_panel()
             ImGui::Text("%s", vname.c_str());
             ImGui::PopStyleColor();
             ImGui::PopFont();
-            auto vit = icon_textures_.find("shot_" + vname);
-            if (vit != icon_textures_.end() && vit->second) {
+            ImTextureID vtex = icons_.find("shot_" + vname);
+            if (vtex) {
                 int iw = 0, ih = 0;
                 for (auto& e : shots) {
                     if (e.name == vname && e.iw > 0 && e.ih > 0) { iw = e.iw; ih = e.ih; break; }
@@ -262,7 +261,7 @@ void StarOverlay::render_panel()
                     if (vh > maxh) { vh = maxh; vw = vh * (float)iw / (float)ih; }
                     float maxw = sw * 0.75f;
                     if (vw > maxw) { vw = maxw; vh = vw * (float)ih / (float)iw; }
-                    ImGui::Image(vit->second, {vw, vh});
+                    ImGui::Image(vtex, {vw, vh});
                 }
             }
             ImGui::Spacing();
@@ -283,15 +282,12 @@ void StarOverlay::render_panel()
             ImGui::PushStyleColor(ImGuiCol_Text,          v4(P_TXT, 1.f));
             if (ImGui::Button("Delete")) {
                 DeleteFileA(viewer_file_.c_str());
-                auto dit = icon_textures_.find("shot_" + vname);
-                if (dit != icon_textures_.end()) {
-                    if (dit->second) {
-                        if (active_api_ == GraphicsAPI::DX11)
-                            ((ID3D11ShaderResourceView*)dit->second)->Release();
-                        else if (active_api_ == GraphicsAPI::DX9)
-                            ((IDirect3DTexture9*)dit->second)->Release();
-                    }
-                    icon_textures_.erase(dit);
+                ImTextureID dit = icons_.take("shot_" + vname);
+                if (dit) {
+                    if (active_api_ == GraphicsAPI::DX11)
+                        ((ID3D11ShaderResourceView*)dit)->Release();
+                    else if (active_api_ == GraphicsAPI::DX9)
+                        ((IDirect3DTexture9*)dit)->Release();
                 }
                 shots.clear();
                 shots_refresh = 0;
@@ -696,9 +692,8 @@ void StarOverlay::render_panel()
 
         std::string ikey = (got ? "p_" : "g_") + def.name;
         ImTextureID icon_tex = nullptr;
-        auto icit = icon_textures_.find(ikey);
-        if (icit != icon_textures_.end()) {
-            icon_tex = icit->second;
+        if (icons_.contains(ikey)) {
+            icon_tex = icons_.find(ikey);
         } else {
             std::vector<uint8_t> rgba; int iw = 0, ih = 0;
             // Preferred icon for this state, falling back to the other one so a

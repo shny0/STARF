@@ -3,6 +3,7 @@
 #include "overlay/core/notes_store.h"
 #include "overlay/ui/notification_queue.h"
 #include "overlay/capture/screenshot_service.h"
+#include "overlay/ui/icon_cache.h"
 #include "overlay/ui/overlay_style.h"
 #include <atomic>
 #include <thread>
@@ -118,7 +119,6 @@ private:
 
     using wglSwapBuffersFn = BOOL(WINAPI*)(HDC);
     wglSwapBuffersFn orig_wglSwapBuffers_ = nullptr;
-    std::vector<unsigned int> gl_icon_textures_;
     static BOOL WINAPI hooked_wglSwapBuffers(HDC);
     void hook_opengl();
     void on_present_opengl(HDC hdc);
@@ -250,7 +250,7 @@ private:
 
     std::mutex                        render_mutex_;
     NotificationQueue notifications_;
-    std::unordered_map<std::string, ImTextureID> icon_textures_;
+    IconCache         icons_;
 
     using PresentFn       = HRESULT (STDMETHODCALLTYPE*)(IDXGISwapChain*, UINT, UINT);
     using Present1Fn      = HRESULT (STDMETHODCALLTYPE*)(IDXGISwapChain1*, UINT, UINT, const DXGI_PRESENT_PARAMETERS*);

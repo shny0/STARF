@@ -283,16 +283,16 @@ void StarOverlay::shutdown()
     cleanup_vulkan();
 
     if (api_snapshot == GraphicsAPI::DX11) {
-        for (auto& [k, v] : icon_textures_) if (v) ((ID3D11ShaderResourceView*)v)->Release();
+        icons_.release_all([](ImTextureID v) { ((ID3D11ShaderResourceView*)v)->Release(); });
     } else if (api_snapshot == GraphicsAPI::DX9) {
         // MANAGED-pool IDirect3DTexture9* icons.
-        for (auto& [k, v] : icon_textures_) if (v) ((IDirect3DTexture9*)v)->Release();
+        icons_.release_all([](ImTextureID v) { ((IDirect3DTexture9*)v)->Release(); });
         dx9_device_ = nullptr;
     }
     // OpenGL icon textures belong to the game's GL context, which may be gone
     // at shutdown; the OS/driver reclaims them with the context.
-    gl_icon_textures_.clear();
-    icon_textures_.clear();
+    icons_.clear_gl();
+    icons_.clear();
     if (context_) { context_->Release(); context_ = nullptr; }
     if (device_)  { device_->Release();  device_  = nullptr; }
     hooks_installed_ = false;
