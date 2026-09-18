@@ -2,7 +2,7 @@
 // on its own thread. Zero hooks into game rendering, for hostile titles
 // (e.g. engines whose backbuffers fault on foreign access). Reuses the same
 // panel/toast/HUD/icon code as the hook path.
-#include "overlay/overlay.h"
+#include "overlay/overlay_internal.h"
 #include "core/settings.h"
 #include "imgui.h"
 #include "imgui_impl_win32.h"

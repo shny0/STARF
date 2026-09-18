@@ -171,7 +171,7 @@ bool StarSteamUserStats::SetAchievement(const char* pchName)
         }
     }
     if (was_newly_achieved) {
-        StarOverlay::get().note_session_unlock();
+        Overlay::get().note_session_unlock();
         {
             nlohmann::json ach_json = nlohmann::json::object();
             std::lock_guard<std::mutex> lock(mutex_);
@@ -215,7 +215,7 @@ bool StarSteamUserStats::SetAchievement(const char* pchName)
                 snprintf(msg, sizeof(msg), "%d achievements", (int)Settings::get().achievements.size());
                 std::vector<uint8_t> sum_rgba; int sum_w = 0, sum_h = 0;
                 StarSteamUtils::get().LoadSummaryIcon(sum_rgba, sum_w, sum_h);
-                StarOverlay::get().push_achievement(
+                Overlay::get().push_achievement(
                     "All achievements unlocked", msg, sum_rgba, sum_w, sum_h,
                     "100% COMPLETE", true);
             }
@@ -309,13 +309,13 @@ void StarSteamUserStats::notify_achievement_unlock(const std::string& name, bool
                 StarSteamUtils::get().LoadIconFile(full_path, icon_rgba, icon_w, icon_h);
             }
             if (with_sound) play_achievement_sound();
-            StarOverlay::get().push_achievement(def.display_name, def.description, icon_rgba, icon_w, icon_h);
+            Overlay::get().push_achievement(def.display_name, def.description, icon_rgba, icon_w, icon_h);
             return;
         }
     }
 
     if (with_sound) play_achievement_sound();
-    StarOverlay::get().push_achievement(name, "", {}, 0, 0);
+    Overlay::get().push_achievement(name, "", {}, 0, 0);
 }
 
 bool StarSteamUserStats::ClearAchievement(const char* pchName)
@@ -326,7 +326,7 @@ bool StarSteamUserStats::ClearAchievement(const char* pchName)
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = achievements_.find(pchName);
         if (it != achievements_.end()) {
-            if (it->second.achieved) StarOverlay::get().note_session_revoke();
+            if (it->second.achieved) Overlay::get().note_session_revoke();
             it->second.achieved = false;
             it->second.unlock_time = 0;
         }

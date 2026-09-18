@@ -33,6 +33,11 @@ StarOverlay& StarOverlay::get()
     return instance;
 }
 
+Overlay& Overlay::get()
+{
+    return StarOverlay::get();
+}
+
 void StarOverlay::init()
 {
     g_overlay = this;
