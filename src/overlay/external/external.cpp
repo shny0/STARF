@@ -13,8 +13,6 @@
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND, UINT, WPARAM, LPARAM);
 
 namespace {
-static float ext_clamp01(float v) { return v < 0.f ? 0.f : v > 1.f ? 1.f : v; }
-
 struct FindGameCtx {    DWORD pid = 0;
     HWND self = nullptr;
     HWND best = nullptr;
@@ -339,18 +337,7 @@ void StarOverlay::external_render_frame()
     ImGui::NewFrame();
     apply_cursor_mode();
 
-    float dt = ImGui::GetIO().DeltaTime;
-    if (dt <= 0.f) dt = 0.0167f;
-
-    float target = open_ ? 1.f : 0.f;
-    panel_anim_ += (target - panel_anim_) * ext_clamp01(12.f * dt);
-    panel_anim_  = ext_clamp01(panel_anim_);
-
-    if (panel_anim_ > 0.001f) render_panel();
-    render_notifications(dt);
-    render_hud();
-
-    ImGui::Render();
+    build_frame_ui();
     {
         static bool logged_frame = false;
         if (!logged_frame) {

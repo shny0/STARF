@@ -90,18 +90,7 @@ void StarOverlay::on_present_opengl(HDC hdc)
         ImGui::NewFrame();
         apply_cursor_mode();
 
-        float dt = ImGui::GetIO().DeltaTime;
-        if (dt <= 0.f) dt = 0.0167f;
-
-        float target = open_ ? 1.f : 0.f;
-        panel_anim_ += (target - panel_anim_) * clamp01(12.f * dt);
-        panel_anim_  = clamp01(panel_anim_);
-
-        if (panel_anim_ > 0.001f) render_panel();
-        render_notifications(dt);
-        render_hud();
-
-        ImGui::Render();
+        build_frame_ui();
 
         #ifndef GL_ALL_ATTRIB_BITS
         #define GL_ALL_ATTRIB_BITS 0x000fffff

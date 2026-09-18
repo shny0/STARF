@@ -155,6 +155,9 @@ private:
     void panel_notes(ImFont* fsmall);
     void panel_achievement_list(ImFont* fsmall, ImFont* ftitle);
     void render_hud();
+    // Shared per-present UI build: panel animation, panel, notifications, HUD,
+    // then ImGui::Render(). Backend-specific draw data submission follows.
+    void build_frame_ui();
     // Software cursor while open: guarantees a visible panel cursor even if
     // the game buried the OS cursor. Off when closed (game draws its own).
     void apply_cursor_mode() { ImGui::GetIO().MouseDrawCursor = open_; }

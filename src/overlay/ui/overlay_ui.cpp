@@ -25,6 +25,22 @@
 #include <ctime>
 #include <algorithm>
 
+void StarOverlay::build_frame_ui()
+{
+    float dt = ImGui::GetIO().DeltaTime;
+    if (dt <= 0.f) dt = 0.0167f;
+
+    float target = open_ ? 1.f : 0.f;
+    panel_anim_ += (target - panel_anim_) * clamp01(12.f * dt);
+    panel_anim_  = clamp01(panel_anim_);
+
+    if (panel_anim_ > 0.001f) render_panel();
+    render_notifications(dt);
+    render_hud();
+
+    ImGui::Render();
+}
+
 void StarOverlay::render_hud()
 {
     bool show_fps = Settings::get().overlay_show_fps;
